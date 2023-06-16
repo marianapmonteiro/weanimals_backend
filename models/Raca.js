@@ -8,6 +8,7 @@ const racaSchema = new Schema({
 	imagens: [String],
 	cuidadosEspecificos: String,
 	category: String,
+	authorName: String
 });
 
 const Raca = mongoose.model("Raca", racaSchema);

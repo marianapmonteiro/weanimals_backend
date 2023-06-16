@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-
 const AnimalController = require("../controllers/AnimalController");
+const { uploadEspecie } = require("../middlewares/EspecieUploadImg");
 
-router.post("/addespecie", AnimalController.addEspecie);
+router.post("/addespecie", uploadEspecie.array("imagens", 5), AnimalController.addEspecie);
 router.post("/addraca", AnimalController.addRaca);
 
 router.get("/getespecies", AnimalController.getEspecies);

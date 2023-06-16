@@ -1,12 +1,13 @@
 const express = require("express");
+const cors = require("cors");
+const path = require('path')
 const app = express();
+require("dotenv").config();
+require("./db");
 
-const mongoose = require("mongoose");
-
+//Rotas
 const AuthRouter = require("./routes/Auth");
 const AnimalRouter = require("./routes/Animais");
-
-const cors = require("cors");
 
 app.use(function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -20,19 +21,17 @@ app.use(function (req, res, next) {
 app.use(cors());
 app.use(express.json());
 
-require("dotenv").config();
-
-const PORT = process.env.PORT || 3001;
-mongoose
-	.connect(process.env.DB)
-	.then(() => {
-		console.log("Conectado ao banco de dados ");
-		app.listen(PORT, () => {
-			console.log(`Servidor online! Rodando na porta ${PORT}`);
-		});
-	})
-	.catch();
+app.use('/uploads', express.static(path.resolve(__dirname, "uploads", "especies")))
 
 app.use("/auth", AuthRouter);
 
 app.use("/app", AnimalRouter);
+
+
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () => {
+	console.log(`Servidor online rodando na porta ${PORT}`)
+})
+
+

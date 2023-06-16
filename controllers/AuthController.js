@@ -2,37 +2,49 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const register = (req, res, next) => {
+const register = async (req, res, next) => {
 	const { name, email, password, confirmPassword } = req.body;
 
 	if (password !== confirmPassword) {
-		return res.status(400).json({ message: "Senhas não conferem." });
+		return res.json({ error: "Senhas não conferem." });
 	}
-
-	bcrypt.hash(password, 10, function (err, hashedPass) {
-		if (err) {
-			res.json({
-				error: err,
+	try {
+		const userExists = await User.findOne({ email: email });
+		if (userExists) {
+			return res.json({ error: "E-mail já cadastrado." })
+		} else {
+			console.log('criando usuario')
+			bcrypt.hash(password, 10, function (err, hashedPass) {
+				if (err) {
+					res.json({
+						error: err,
+					});
+				}
+				let user = new User({
+					name: name,
+					email: email,
+					password: hashedPass,
+				});
+				user
+					.save()
+					.then((user) => {
+						res.json({
+							message: "Usuário criado com sucesso!",
+						});
+					})
+					.catch((error) => {
+						res.json({
+							error: "Ocorreu um erro ao se registrar.",
+						});
+					});
 			});
 		}
-		let user = new User({
-			name: name,
-			email: email,
-			password: hashedPass,
-		});
-		user
-			.save()
-			.then((user) => {
-				res.json({
-					message: "Usuário criado com sucesso!",
-				});
-			})
-			.catch((error) => {
-				res.json({
-					message: "Ocorreu um erro ao se registrar.",
-				});
-			});
-	});
+	} catch (err) {
+		console.log(err);
+
+	}
+
+
 };
 const login = (req, res, next) => {
 	const { email, password } = req.body;
@@ -49,15 +61,20 @@ const login = (req, res, next) => {
 						let token = jwt.sign({ name: user.name }, "verySecretValue", {
 							expiresIn: "24h",
 						});
-						res.json({ message: "Login efetuado com sucesso!", token });
+						const userData = {
+							name: user.name,
+							email: user.email,
+						};
+
+						res.json({ message: "Login efetuado com sucesso!", token, data: userData });
 					} else {
-						res.json({ message: "Senha inválida." });
+						res.json({ error: "Senha inválida." });
 					}
 				}
 			});
 		} else {
 			res.json({
-				message: "Nenhum usuário encontrado.",
+				error: "Nenhum usuário encontrado.",
 			});
 		}
 	});

@@ -8,6 +8,7 @@ const especieSchema = new Schema({
 	etiquetas: [String],
 	racas: [{ type: Schema.Types.ObjectId, ref: "Raca" }],
 	category: String,
+	authorName: String
 });
 
 const Especie = mongoose.model("Especie", especieSchema);
