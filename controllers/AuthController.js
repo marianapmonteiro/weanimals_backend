@@ -58,10 +58,11 @@ const login = (req, res, next) => {
 					});
 				} else {
 					if (result) {
-						let token = jwt.sign({ name: user.name }, "verySecretValue", {
-							expiresIn: "24h",
+						let token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_KEY, {
+							expiresIn: "7d",
 						});
 						const userData = {
+							userId: user._id,
 							name: user.name,
 							email: user.email,
 						};
